@@ -21,24 +21,18 @@ Usage
 	);
 
 	// Build a job
-
 	jenkins.setJob("NAME_OF_JOB_YOU_WISH_TO_BUILD");
 	jenkins.build();
 
-	jobName = "NAME_OF_JOB";
-	paramName = "Codes";
+	// Get job description
+	desc = jenkins.getDescription();
 
-	jenkins.setJob(jobName);
+	// Get current value of a string parameter, myParam
+	myParam = jenkins.getStringParameter("myParam");
 
-	currentParamValue = jenkins.getStringParameter(paramName)
+	// Update the same string parameter
+	updatedConfig = jenkins.updateStringParameter("myParam", "New value");
+	jenkins.updateConfig(updatedConfig);
 
-	if (request.act EQ "addSiteCode") {
-
-		if (NOT listFind(currentParamValue, request.newParamItem, " ")) {
-			newParamValue = listAppend(currentParamValue, request.newParamItem, " ");
-			newConfig = jenkins.updateStringParameter(paramName, newParamValue);
-			jenkins.updateConfig(newConfig);
-			location url="#cgi.script_name#";
-		}
-
-	}
+	// Check new parameter was saved
+	updatedParam = jenkins.getStringParameter("myParam");
