@@ -1,6 +1,6 @@
 component {
 
-	debugURL = "http://127.0.0.1:8888/request-dump.cfm";
+	debugURL = "http://127.0.0.1:8888/jenkins-dump.cfm";
 
 	function init(username, token, serverURL, job) {
 		variables.username = username;
