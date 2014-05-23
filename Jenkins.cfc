@@ -20,13 +20,13 @@ component {
 	}
 
 	function build() {
-		u = getJobURL("build");
+		u = getURL("build");
 		http url="#u#";
 	}
 
 	function buildWithParameters(params = []) {
 
-		u = getJobURL("buildWithParameters");
+		u = getURL("buildWithParameters");
 
 		http url="#u#" {
 
@@ -42,7 +42,7 @@ component {
 
 	function getConfig() {
 
-		u = getJobURL("config.xml");
+		u = getURL("config.xml");
 
 		http url="#u#";
 
@@ -55,7 +55,7 @@ component {
 			xml = toString(xml);
 		}
 
-		u = getJobURL("config.xml");
+		u = getURL("config.xml");
 
 		http url="#u#" method="post" {
 			httpparam type="body" value="#xml#";
@@ -127,7 +127,7 @@ component {
 
 	function getParameters() {
 
-		u = getJobURL("api/json?tree=actions[parameterDefinitions[defaultParameterValue[value],description,name,type]]");
+		u = getURL("api/json?tree=actions[parameterDefinitions[defaultParameterValue[value],description,name,type]]");
 
 		http url="#u#";
 
@@ -145,7 +145,7 @@ component {
 
 	function getDescription() {
 
-		u = getJobURL("description");
+		u = getURL("description");
 
 		http url="#u#";
 
@@ -155,7 +155,7 @@ component {
 
 	function updateDescription(description) {
 
-		u = getJobURL("submitDescription");
+		u = getURL("submitDescription");
 
 		http url="#u#" method="post" {
 			httpparam type="formfield" name="description" value="#description#";
