@@ -29,11 +29,14 @@ if (url.example EQ "getConfig") {
 		{link = "Get config", href = "?example=getConfig"}
 	];
 
+	echo("<h1>Jenkins.cfc</h1>");
+	echo("<h2>Examples</h2>");
+
+	echo("<ul>");
 	for (ex in examples) {
-		echo("<ul>");
 		echo("<li><a href='#ex.href#'>#ex.link#</a></li>");
-		echo("</ul>");
 	}
+	echo("</ul>");
 
 }
 
