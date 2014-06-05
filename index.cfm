@@ -5,8 +5,8 @@ param name="url.example" default="";
 username = "anonymous";
 token = "1796ebe2bb6f7ea071a5a07bcc0114fa";
 serverURL = "http://jenkins:8080";
-jenkins = new Jenkins(username, token, serverURL);
 jobName = "Start Railo Express";
+jenkins = new Jenkins(username, token, serverURL, jobName);
 
 jenkins.setJobName(jobName);
 
@@ -20,9 +20,7 @@ if (url.example EQ "getConfig") {
 
 } else if (url.example EQ "getDescription") {
 
-	description = jenkins.getDescription();
-
-	echo(jobName & " - " & description);
+	echo(jenkins.getJobName() & " - " & jenkins.getDescription());
 
 } else {
 
