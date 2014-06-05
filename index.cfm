@@ -8,7 +8,7 @@ serverURL = "http://jenkins:8080";
 jenkins = new Jenkins(username, token, serverURL);
 jobName = "Start Railo Express";
 
-jenkins.setJob(jobName);
+jenkins.setJobName(jobName);
 
 if (url.example EQ "getConfig") {
 

@@ -2,21 +2,21 @@ component {
 
 	debugURL = "http://127.0.0.1:8888/jenkins-dump.cfm";
 
-	function init(username, token, serverURL, job) {
+	function init(username, token, serverURL, jobName) {
 		variables.username = username;
 		variables.token = token;
 		variables.serverURL = reReplaceNoCase(serverURL, "(https?://)", "\1#username#:#token#@");
-		if (NOT isNull(job)) { // What does this do for scoping? Let's turn on hardcode scoping and deal with the lack of cascade!
-			setJob(job);
+		if (NOT isNull(jobName)) { // What does this do for scoping? Let's turn on hardcode scoping and deal with the lack of cascade!
+			setJobName(jobName);
 		}
 	}
 
-	function setJob(job) {
-		variables.job = job;
+	function setJobName(jobName) {
+		variables.jobNameName = jobName;
 	}
 
 	function getURL(path) {
-		return "#variables.serverURL#/job/#variables.job#/#path#";
+		return "#variables.serverURL#/job/#variables.jobName#/#path#";
 	}
 
 	function build() {
