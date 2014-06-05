@@ -6,6 +6,7 @@ Interact with Jenkins in your ColdFusion and Railo projects.
 Notes
 
 - Built to work with Jenkins 1.500.
+- Tested on Jenkins 1.500 and 1.564.
 - Tested on Railo 4.2.1 with full null support, and localmode set to modern, hence the lack of var scoped variables.
 
 Todo
