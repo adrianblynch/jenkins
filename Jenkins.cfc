@@ -12,7 +12,11 @@ component {
 	}
 
 	function setJobName(jobName) {
-		variables.jobNameName = jobName;
+		variables.jobName = jobName;
+	}
+
+	function getJobName() {
+		return variables.jobName;
 	}
 
 	function getURL(path) {
