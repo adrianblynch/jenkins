@@ -4,16 +4,19 @@ Jenkins.cfc
 Interact with Jenkins in your ColdFusion and Railo projects.
 
 Notes
+-----
 
 - Built to work with Jenkins 1.500.
 - Tested on Jenkins 1.500 and 1.564.
 - Tested on Railo 4.2.1 with full null support, and localmode set to modern, hence the lack of var scoped variables.
 
 Todo
+----
 
 - Change getStringParameterNode() to use better XML manipulation. The current nested loops approach is damn ugly!
 
 Usage
+-----
 
 	jenkins = new lib.Jenkins(
 		username = "JENKINS_USERNAME",
@@ -37,3 +40,5 @@ Usage
 
 	// Check new parameter was saved
 	updatedParam = jenkins.getStringParameter("myParam");
+
+Also see index.cfm for runnable examples.
