@@ -150,11 +150,7 @@ component {
 
 	}
 
-	function updateStringParameter(name, value, config) {
-
-		if (isNull(config)) {
-			config = getConfig();
-		}
+	function updateStringParameter(name, value, config = getConfig()) {
 
 		xml = xmlParse(config);
 		node = getStringParameterNode(name, xml);
@@ -162,10 +158,6 @@ component {
 
 		return xml;
 
-	}
-
-	function parseResult(result) {
-		return isXML(result) ? xmlParse(result) : (isJSON(result) ? deserializeJSON(result) : "");
 	}
 
 	function setDescription(description) {
@@ -189,6 +181,10 @@ component {
 
 		return cfhttp.status_code EQ "200";
 
+	}
+
+	function parseResult(result) {
+		return isXML(result) ? xmlParse(result) : (isJSON(result) ? deserializeJSON(result) : "");
 	}
 
 }
