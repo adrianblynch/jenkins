@@ -14,7 +14,7 @@ Todo
 ----
 
 - Change getStringParameterNode() to use better XML manipulation. The current nested loops approach is damn ugly!
-- Add choice parameter methods.
+- Get as many parametera as we can, starting with the single value ones.
 
 Usage
 -----
