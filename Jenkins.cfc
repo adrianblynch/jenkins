@@ -138,6 +138,52 @@ component {
 		}
 	}
 
+	function extractParameters(parametersNode) {
+
+		params = [];
+		paramTypeMap = {
+			"hudson.model.StringParameterDefinition" = "string",
+			"hudson.model.BooleanParameterDefinition" = "boolean",
+			"hudson.model.TextParameterDefinition" = "text",
+			"hudson.model.ChoiceParameterDefinition" = "choice",
+			"hudson.model.PasswordParameterDefinition" = "password"
+		};
+
+		for (node in parametersNode.xmlChildren) {
+
+			param = {
+				"name" = node.xmlChildren[1].XmlText,
+				"description" = node.XmlChildren[2].XmlText,
+				"type" = paramTypeMap[node.xmlName] ?: ""
+			};
+
+			if ([
+				"hudson.model.StringParameterDefinition",
+				"hudson.model.BooleanParameterDefinition",
+				"hudson.model.TextParameterDefinition",
+				"hudson.model.PasswordParameterDefinition"
+			].findNoCase(node.xmlName)) {
+
+				param["defaultValue"] = node.XmlChildren[3].XmlText;
+
+			} else if (["hudson.model.ChoiceParameterDefinition"].findNoCase(node.xmlName)) {
+
+				param["choices"] = [];
+
+				for (choice in node.xmlChildren[3].xmlChildren[1].xmlChildren) {
+					param.choices.append(choice.xmlText);
+				}
+
+			}
+
+			params.append(param);
+
+		}
+
+		return params;
+
+	}
+
 	function updateStringParameter(name, value, config) {
 
 		if (isNull(config)) {

@@ -9,8 +9,10 @@ jobName = "API Test";
 jenkins = new Jenkins(username, token, serverURL, jobName);
 
 // The start of getting all param nodes in one go
-//paramNodes = jenkins.getParameterNodes(xmlParse(jenkins.getConfig()));
-//dump(paramNodes);
+// paramNodes = jenkins.getParameterNodes(xmlParse(jenkins.getConfig()));
+// dump(paramNodes);
+// params = jenkins.extractParameters(paramNodes);
+// dump(params);
 
 if (url.example EQ "getConfig") {
 
