@@ -115,6 +115,29 @@ component {
 
 	}
 
+	function getChoiceParameters(name, config) {
+
+		// Not yet implemented
+
+	}
+
+	function getParameterNodes(configXML) {
+		for (node in configXML.project.XmlChildren) {
+			if (node.XmlName EQ "properties") {
+				for (node in node.XmlChildren) {
+					if (node.XmlName EQ "hudson.model.ParametersDefinitionProperty") {
+						for (node in node.XmlChildren) {
+							if (node.XmlName EQ "parameterDefinitions") {
+								return node;
+							}
+						}
+						return null;
+					}
+				}
+			}
+		}
+	}
+
 	function updateStringParameter(name, value, config) {
 
 		if (isNull(config)) {

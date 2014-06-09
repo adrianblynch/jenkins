@@ -5,10 +5,12 @@ param name="url.example" default="";
 username = "anonymous";
 token = "1796ebe2bb6f7ea071a5a07bcc0114fa";
 serverURL = "http://jenkins:8080";
-jobName = "Start Railo Express";
+jobName = "API Test";
 jenkins = new Jenkins(username, token, serverURL, jobName);
 
-jenkins.setJobName(jobName);
+// The start of getting all param nodes in one go
+//paramNodes = jenkins.getParameterNodes(xmlParse(jenkins.getConfig()));
+//dump(paramNodes);
 
 if (url.example EQ "getConfig") {
 
@@ -22,11 +24,23 @@ if (url.example EQ "getConfig") {
 
 	echo(jenkins.getJobName() & " - " & jenkins.getDescription());
 
+} else if (url.example EQ "getStringParam") {
+
+	stringParam = "AStringParam";
+	echo(stringParam & " = " & jenkins.getStringParameter(stringParam));
+
+} else if (url.example EQ "getChoiceParams") {
+
+	choiceParam = "AChoiceParam";
+	echo(choiceParam & " = " & jenkins.getChoiceParameters(choiceParam));
+
 } else {
 
 	examples = [
 		{link = "Get description", href = "?example=getDescription"},
-		{link = "Get config", href = "?example=getConfig"}
+		{link = "Get config", href = "?example=getConfig"},
+		{link = "Get string parameter", href = "?example=getStringParam"},
+		{link = "Get choice parameters", href = "?example=getChoiceParams"}
 	];
 
 	echo("<h1>Jenkins.cfc</h1>");
