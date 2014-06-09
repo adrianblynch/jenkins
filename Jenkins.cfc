@@ -1,6 +1,6 @@
 component {
 
-	debugURL = "http://127.0.0.1:8888/jenkins-dump.cfm";
+	config = "";
 
 	function init(username, token, serverURL, jobName) {
 		variables.username = username;
@@ -24,8 +24,7 @@ component {
 	}
 
 	function build() {
-		u = getURL("build");
-		http url="#u#";
+		http url="#getURL('build')#";
 	}
 
 	function buildWithParameters(params = []) {
@@ -44,101 +43,47 @@ component {
 
 	}
 
+	function setConfig(config) {
+		variables.config = config;
+	}
+
 	function getConfig() {
-
-		u = getURL("config.xml");
-
-		http url="#u#";
-
+		http url="#getURL('config.xml')#";
 		return cfhttp.fileContent;
 	}
 
-	function updateConfig(xml) {
+	function loadConfig() {
+		http url="#getURL('config.xml')#";
+		setConfig(cfhttp.fileContent);
+	}
 
-		if (isXML(xml)) {
-			xml = toString(xml);
-		}
+	function saveConfig() {
 
-		u = getURL("config.xml");
-
-		http url="#u#" method="post" {
-			httpparam type="body" value="#xml#";
+		http url="#getURL('config.xml')#" method="post" {
+			httpparam type="body" value="#getConfig()#";
 		}
 
 		return cfhttp.status_code EQ "200";
 
 	}
 
-	function getStringParameterNode(name, configXML) {
+	function getParameter(name) {
 
-		// XPath might be a better way of getting to the node we want to change
-		/*
-			propertiesNode = xmlSearch(xml, "/project/properties/hudson.model.ParametersDefinitionProperty/parameterDefinitions/hudson.model.StringParameterDefinition[name[text()='Codes']]/defaultValue");
-			//dump(propertiesNode);
-			propertiesNode[1].XmlText = "asdf";
-			//dump(propertiesNode);
-			propertiesValue = propertiesNode[1].XmlText;
-			//dump(propertiesValue);
-		*/
+		params = getParameters();
 
-		for (node in configXML.project.XmlChildren) {
-			if (node.XmlName EQ "properties") {
-				for (node in node.XmlChildren) {
-					if (node.XmlName EQ "hudson.model.ParametersDefinitionProperty") {
-						for (node in node.XmlChildren) {
-							if (node.XmlName EQ "parameterDefinitions") {
-								for (node in node.XmlChildren) {
-									if (node.XmlChildren[1].XmlText EQ name) { // Direct access because I'm sick of looping!
-										return node.XmlChildren[3];
-									}
-								}
-								return null; // We didn't find one
-							}
-						}
-					}
-				}
+		for (param in params) {
+			if (param.name EQ name) {
+				return param;
 			}
 		}
 
-	}
-
-	function getStringParameter(name, config) {
-
-		if (isNull(config)) {
-			config = getConfig();
-		}
-
-		xml = xmlParse(config);
-		node = getStringParameterNode(name, xml);
-
-		return NOT isNull(node) ? node.XmlText : null;
+		return null;
 
 	}
 
-	function getChoiceParameters(name, config) {
+	function getParameters() {
 
-		// Not yet implemented
-
-	}
-
-	function getParameterNodes(configXML) {
-		for (node in configXML.project.XmlChildren) {
-			if (node.XmlName EQ "properties") {
-				for (node in node.XmlChildren) {
-					if (node.XmlName EQ "hudson.model.ParametersDefinitionProperty") {
-						for (node in node.XmlChildren) {
-							if (node.XmlName EQ "parameterDefinitions") {
-								return node;
-							}
-						}
-						return null;
-					}
-				}
-			}
-		}
-	}
-
-	function getParameters(parametersNode) {
+		parametersNode = getParameterNodes();
 
 		params = [];
 		paramTypeMap = {
@@ -184,6 +129,27 @@ component {
 
 	}
 
+	function getParameterNodes() {
+
+		configXML = xmlParse(getConfig());
+
+		for (node in configXML.project.XmlChildren) {
+			if (node.XmlName EQ "properties") {
+				for (node in node.XmlChildren) {
+					if (node.XmlName EQ "hudson.model.ParametersDefinitionProperty") {
+						for (node in node.XmlChildren) {
+							if (node.XmlName EQ "parameterDefinitions") {
+								return node;
+							}
+						}
+						return null;
+					}
+				}
+			}
+		}
+
+	}
+
 	function updateStringParameter(name, value, config) {
 
 		if (isNull(config)) {
@@ -198,41 +164,30 @@ component {
 
 	}
 
-	function getParameters() {
-
-		u = getURL("api/json?tree=actions[parameterDefinitions[defaultParameterValue[value],description,name,type]]");
-
-		http url="#u#";
-
-		for (item in parseResult(cfhttp.fileContent).actions) {
-			if (item.keyArray()[1] EQ "parameterDefinitions") {
-				return item.parameterDefinitions;
-			}
-		}
-
-	}
-
 	function parseResult(result) {
 		return isXML(result) ? xmlParse(result) : (isJSON(result) ? deserializeJSON(result) : "");
 	}
 
-	function getDescription() {
-
-		u = getURL("description");
-
-		http url="#u#";
-
-		return cfhttp.fileContent;
-
+	function setDescription(description) {
+		variables.description = description;
 	}
 
-	function updateDescription(description) {
+	function getDescription() {
+		return description;
+	}
 
-		u = getURL("submitDescription");
+	function loadDescription() {
+		http url="#getURL('description')#";
+		setDescription(cfhttp.fileContent);
+	}
 
-		http url="#u#" method="post" {
+	function saveDescription(description = getDescription()) {
+
+		http url="#getURL('submitDescription')#" method="post" {
 			httpparam type="formfield" name="description" value="#description#";
 		}
+
+		return cfhttp.status_code EQ "200";
 
 	}
 

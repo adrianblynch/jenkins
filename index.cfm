@@ -6,13 +6,18 @@ username = "anonymous";
 token = "1796ebe2bb6f7ea071a5a07bcc0114fa";
 serverURL = "http://jenkins:8080";
 jobName = "API Test";
+
 jenkins = new Jenkins(username, token, serverURL, jobName);
 
-// The start of getting all param nodes in one go
-// paramNodes = jenkins.getParameterNodes(xmlParse(jenkins.getConfig()));
-// dump(paramNodes);
-// params = jenkins.extractParameters(paramNodes);
-// dump(params);
+jenkins.loadConfig();
+jenkins.setConfig(jenkins.getConfig());
+jenkins.saveConfig();
+
+param = jenkins.getParameter("AStringParam");
+dump(param);
+
+params = jenkins.getParameters();
+dump(params);
 
 if (url.example EQ "getConfig") {
 
