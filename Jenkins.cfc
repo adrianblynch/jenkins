@@ -138,7 +138,7 @@ component {
 		}
 	}
 
-	function extractParameters(parametersNode) {
+	function getParameters(parametersNode) {
 
 		params = [];
 		paramTypeMap = {
