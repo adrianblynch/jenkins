@@ -44,7 +44,7 @@ component {
 	}
 
 	function setConfig(config) {
-		variables.config = config;
+		variables.config = isXML(config) ? toString(config) : config;
 	}
 
 	function getConfig() {
@@ -69,15 +69,17 @@ component {
 
 	function getParameter(name) {
 
-		params = getParameters();
+		parameters = getParameters();
+		params = [];
 
-		for (param in params) {
+		for (param in parameters) {
+			// We check all because there might be more than one param with the same name
 			if (param.name EQ name) {
-				return param;
+				params.append(param);
 			}
 		}
 
-		return null;
+		return params.len() EQ 1 ? params[1] : params;
 
 	}
 
@@ -86,19 +88,13 @@ component {
 		parametersNode = getParameterNodes();
 
 		params = [];
-		paramTypeMap = {
-			"hudson.model.StringParameterDefinition" = "string",
-			"hudson.model.BooleanParameterDefinition" = "boolean",
-			"hudson.model.TextParameterDefinition" = "text",
-			"hudson.model.ChoiceParameterDefinition" = "choice",
-			"hudson.model.PasswordParameterDefinition" = "password"
-		};
+
 
 		for (node in parametersNode.xmlChildren) {
 
 			param = {
-				"name" = node.xmlChildren[1].XmlText,
-				"description" = node.XmlChildren[2].XmlText,
+				"name" = node.xmlChildren[1].xmlText,
+				"description" = node.XmlChildren[2].xmlText,
 				"type" = paramTypeMap[node.xmlName] ?: ""
 			};
 
@@ -109,7 +105,7 @@ component {
 				"hudson.model.PasswordParameterDefinition"
 			].findNoCase(node.xmlName)) {
 
-				param["defaultValue"] = node.XmlChildren[3].XmlText;
+				param["defaultValue"] = node.XmlChildren[3].xmlText;
 
 			} else if (["hudson.model.ChoiceParameterDefinition"].findNoCase(node.xmlName)) {
 
@@ -134,27 +130,91 @@ component {
 		configXML = xmlParse(getConfig());
 
 		for (node in configXML.project.XmlChildren) {
+
 			if (node.XmlName EQ "properties") {
+
 				for (node in node.XmlChildren) {
+
 					if (node.XmlName EQ "hudson.model.ParametersDefinitionProperty") {
+
 						for (node in node.XmlChildren) {
+
 							if (node.XmlName EQ "parameterDefinitions") {
 								return node;
 							}
+
 						}
+
 						return null;
+
 					}
+
 				}
+
 			}
+
 		}
 
+
+	}
+
+	function updateParameter(name, value) {
+
+		// Update basic parameters
+
+		paramNodes = getParameterNodes();
+
+		results = xmlSearch(paramNodes, "//parameterDefinitions")[1].xmlChildren;
+
+		dump(results);
+
+		for (param in results) {
+
+			if (getParameterName(param) EQ name) {
+
+				if (getMappedParameterType(param) EQ "string") {
+					updateStringParameter(name, value);
+				}
+
+			}
+
+		}
+
+		dump(paramNodes);
+
+	}
+
+	function getMappedParameterType(any parameter) {
+
+		paramTypeMap = {
+			"hudson.model.StringParameterDefinition" = "string",
+			"hudson.model.BooleanParameterDefinition" = "boolean",
+			"hudson.model.TextParameterDefinition" = "text",
+			"hudson.model.ChoiceParameterDefinition" = "choice",
+			"hudson.model.PasswordParameterDefinition" = "password"
+		};
+
+		if (isXMLElem(parameter)) {
+			return paramTypeMap[parameter.xmlName] ?: "";
+		} else {
+			return paramTypeMap[parameter] ?: "";
+		}
+
+	}
+
+	function getParameterName(parameterNode) {
+		return parameterNode.xmlChildren[1].xmlName;
+	}
+
+	function updateParameterChoices(name, choices) {
+		// Update the choices of a choice parameter
 	}
 
 	function updateStringParameter(name, value, config = getConfig()) {
 
 		xml = xmlParse(config);
 		node = getStringParameterNode(name, xml);
-		node.XmlText = value;
+		node.xmlText = value;
 
 		return xml;
 

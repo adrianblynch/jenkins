@@ -14,18 +14,16 @@ jenkins.setConfig(jenkins.getConfig());
 jenkins.saveConfig();
 
 param = jenkins.getParameter("AStringParam");
-dump(param);
-
+params = jenkins.getParameter("DupeStringParam");
 params = jenkins.getParameters();
-dump(params);
+
+jenkins.updateParameter("AStringParam", now());
 
 if (url.example EQ "getConfig") {
 
-	config = jenkins.getConfig();
-
 	header name="Content-Type" value="text/xml";
 
-	echo(config);
+	echo(jenkins.getConfig());
 
 } else if (url.example EQ "getDescription") {
 
