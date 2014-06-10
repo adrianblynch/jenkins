@@ -48,8 +48,7 @@ component {
 	}
 
 	function getConfig() {
-		http url="#getURL('config.xml')#";
-		return cfhttp.fileContent;
+		return config;
 	}
 
 	function loadConfig() {
@@ -67,7 +66,7 @@ component {
 
 	}
 
-	function getParameter(name) {
+	function getParameter(name, scope = "one") {
 
 		parameters = getParameters();
 		params = [];
@@ -75,7 +74,11 @@ component {
 		for (param in parameters) {
 			// We check all because there might be more than one param with the same name
 			if (param.name EQ name) {
-				params.append(param);
+				if (scope EQ "one") {
+					return param;
+				} else {
+					params.append(param);
+				}
 			}
 		}
 
@@ -89,21 +92,20 @@ component {
 
 		params = [];
 
-
 		for (node in parametersNode.xmlChildren) {
 
 			param = {
 				"name" = node.xmlChildren[1].xmlText,
 				"description" = node.XmlChildren[2].xmlText,
-				"type" = paramTypeMap[node.xmlName] ?: ""
+				"type" = getMappedParameterType(node) ?: ""
 			};
 
 			if ([
-				"hudson.model.StringParameterDefinition",
-				"hudson.model.BooleanParameterDefinition",
-				"hudson.model.TextParameterDefinition",
-				"hudson.model.PasswordParameterDefinition"
-			].findNoCase(node.xmlName)) {
+				"string",
+				"boolean",
+				"text",
+				"password"
+			].findNoCase(param.type)) {
 
 				param["defaultValue"] = node.XmlChildren[3].xmlText;
 
@@ -125,11 +127,9 @@ component {
 
 	}
 
-	function getParameterNodes() {
+	function getParameterNodes(config = xmlParse(getConfig())) {
 
-		configXML = xmlParse(getConfig());
-
-		for (node in configXML.project.XmlChildren) {
+		for (node in config.project.XmlChildren) {
 
 			if (node.XmlName EQ "properties") {
 
@@ -158,29 +158,47 @@ component {
 
 	}
 
-	function updateParameter(name, value) {
+	function updateParameter(name, any value, scope = "one") {
 
 		// Update basic parameters
 
-		paramNodes = getParameterNodes();
+		config = config = xmlParse(variables.config);
 
-		results = xmlSearch(paramNodes, "//parameterDefinitions")[1].xmlChildren;
+		nodes = xmlSearch(
+			getParameterNodes(config),
+			"//parameterDefinitions"
+		)[1].xmlChildren;
 
-		dump(results);
+		for (node in nodes) {
 
-		for (param in results) {
+			if (getParameterName(node) EQ name) {
 
-			if (getParameterName(param) EQ name) {
+				if (["string", "boolean", "text", "password"].find(getMappedParameterType(node))) {
 
-				if (getMappedParameterType(param) EQ "string") {
-					updateStringParameter(name, value);
+					node.xmlChildren[3].xmlText = value;
+
+					if (scope EQ "one") {
+						break;
+					}
+
+				} else if (getMappedParameterType(node) EQ "choice") {
+
+					choiceElements = node.xmlChildren[3].xmlChildren[1].xmlChildren;
+
+					// FOR NOW: Three choices, three changes
+					// TODO: Need to remove all choices and add new ones
+					// MAYBE: xmlElemNew() is the way to do it
+					choiceElements.each(function(choiceElement, i) {
+						choiceElement.xmlText = value[i];
+					});
+
 				}
 
 			}
 
 		}
 
-		dump(paramNodes);
+		setConfig(config);
 
 	}
 
@@ -202,22 +220,8 @@ component {
 
 	}
 
-	function getParameterName(parameterNode) {
-		return parameterNode.xmlChildren[1].xmlName;
-	}
-
-	function updateParameterChoices(name, choices) {
-		// Update the choices of a choice parameter
-	}
-
-	function updateStringParameter(name, value, config = getConfig()) {
-
-		xml = xmlParse(config);
-		node = getStringParameterNode(name, xml);
-		node.xmlText = value;
-
-		return xml;
-
+	function getParameterName(node) {
+		return node.xmlChildren[1].xmlText;
 	}
 
 	function setDescription(description) {
