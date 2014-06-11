@@ -76,24 +76,6 @@ component {
 		return [201, 302].find(statusCode) GT 0;
 	}
 
-	function setConfig(config) {
-		variables.config = isXML(config) ? toString(config) : config;
-	}
-
-	function getConfig() {
-		return config;
-	}
-
-	function saveConfig() {
-
-		http url="#getURL('config.xml')#" method="post" {
-			httpparam type="body" value="#getConfig()#";
-		}
-
-		return cfhttp.status_code EQ "200";
-
-	}
-
 	function getParameter(name, scope = "one") {
 
 		parameters = getParameters();
