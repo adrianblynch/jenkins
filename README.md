@@ -15,6 +15,7 @@ Todo
 
 - Look at adding complex parameters to the list of those we can edit
 - Full update of choice parameter choices
+- Add project?
 
 Usage
 -----
@@ -25,8 +26,8 @@ Usage
 		serverURL = "JEKINS_SERVER_URL"
 	);
 
-	// Build a job
-	jenkins.setJob("NAME_OF_JOB_YOU_WISH_TO_PALY_WITH");
+	// Build a project
+	jenkins.setProject("NAME_OF_JOB_YOU_WISH_TO_PALY_WITH");
 	jenkins.build();
 
 See index.cfm for more examples.
