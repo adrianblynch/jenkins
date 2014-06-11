@@ -2,36 +2,62 @@ component {
 
 	config = "";
 
-	function init(username, token, serverURL, jobName) {
+	function init(username, token, serverURL, projectName) {
 		variables.username = username;
 		variables.token = token;
 		variables.serverURL = reReplaceNoCase(serverURL, "(https?://)", "\1#username#:#token#@");
-		if (NOT isNull(jobName)) { // What does this do for scoping? Let's turn on hardcode scoping and deal with the lack of cascade!
-			setJobName(jobName);
+		if (NOT isNull(projectName)) {
+			setProjectName(projectName);
 		}
+		return this;
 	}
 
-	function setJobName(jobName) {
-		variables.jobName = jobName;
+	function setProjectName(projectName) {
+		variables.projectName = projectName;
+		return this;
 	}
 
-	function getJobName() {
-		return variables.jobName;
+	function getProjectName() {
+		return variables.projectName;
+	}
+
+	function setConfig(config) {
+		variables.config = isXML(config) ? toString(config) : config;
+		return this;
+	}
+
+	function getConfig() {
+		return config;
+	}
+
+	function loadConfig() {
+		http url="#getURL('config.xml')#";
+		setConfig(cfhttp.fileContent);
+		return cfhttp.status_code EQ 200;
+	}
+
+	function saveConfig() {
+
+		http url="#getURL('config.xml')#" method="post" {
+			httpparam type="body" value="#getConfig()#";
+		}
+
+		return cfhttp.status_code EQ 200;
+
 	}
 
 	function getURL(path) {
-		return "#variables.serverURL#/job/#variables.jobName#/#path#";
+		return "#variables.serverURL#/job/#variables.projectName#/#path#";
 	}
 
 	function build() {
 		http url="#getURL('build')#";
+		return isBuildSuccessful(cfhttp.status_code);
 	}
 
 	function buildWithParameters(params = []) {
 
-		u = getURL("buildWithParameters");
-
-		http url="#u#" {
+		http url="#getURL('buildWithParameters')#" {
 
 			for (param in params) {
 				key = param.keyArray()[1];
@@ -41,6 +67,13 @@ component {
 
 		}
 
+		return isBuildSuccessful(cfhttp.status_code);
+
+	}
+
+	function isBuildSuccessful(statusCode) {
+		// NOTE: Since 1.519 201 is returned instead of 302 for a successfully created job
+		return [201, 302].find(statusCode) GT 0;
 	}
 
 	function setConfig(config) {
@@ -51,10 +84,10 @@ component {
 		return config;
 	}
 
-	function loadConfig() {
-		http url="#getURL('config.xml')#";
-		setConfig(cfhttp.fileContent);
-	}
+	// function loadConfig() {
+	// 	http url="#getURL('config.xml')#";
+	// 	setConfig(cfhttp.fileContent);
+	// }
 
 	function saveConfig() {
 
@@ -86,40 +119,44 @@ component {
 
 	}
 
-	function getParameters() {
-
-		parametersNode = getParameterNodes();
+	function getParameters(type) {
 
 		params = [];
 
-		for (node in parametersNode.xmlChildren) {
+		for (node in getParameterNodes().xmlChildren) {
 
-			param = {
-				"name" = node.xmlChildren[1].xmlText,
-				"description" = node.XmlChildren[2].xmlText,
-				"type" = getMappedParameterType(node) ?: ""
-			};
+			nodeType = getMappedParameterType(node) ?: "";
 
-			if ([
-				"string",
-				"boolean",
-				"text",
-				"password"
-			].findNoCase(param.type)) {
+			if (isNull(type) OR (NOT isNull(type) AND type EQ nodeType)) {
 
-				param["defaultValue"] = node.XmlChildren[3].xmlText;
+				param = {
+					"name" = node.xmlChildren[1].xmlText,
+					"description" = node.XmlChildren[2].xmlText,
+					"type" = nodeType
+				};
 
-			} else if (["hudson.model.ChoiceParameterDefinition"].findNoCase(node.xmlName)) {
+				if ([
+					"string",
+					"boolean",
+					"text",
+					"password"
+				].findNoCase(param.type)) {
 
-				param["choices"] = [];
+					param["defaultValue"] = node.XmlChildren[3].xmlText;
 
-				for (choice in node.xmlChildren[3].xmlChildren[1].xmlChildren) {
-					param.choices.append(choice.xmlText);
+				} else if (["hudson.model.ChoiceParameterDefinition"].findNoCase(node.xmlName)) {
+
+					param["choices"] = [];
+
+					for (choice in node.xmlChildren[3].xmlChildren[1].xmlChildren) {
+						param.choices.append(choice.xmlText);
+					}
+
 				}
 
-			}
+				params.append(param);
 
-			params.append(param);
+			}
 
 		}
 
@@ -154,7 +191,6 @@ component {
 			}
 
 		}
-
 
 	}
 
@@ -224,17 +260,21 @@ component {
 		return node.xmlChildren[1].xmlText;
 	}
 
-	function setDescription(description) {
-		variables.description = description;
+	function updateDescription(description) {
+		config = xmlParse(getConfig());
+		config.project.description.xmlText = description;
+		setConfig(config);
+		return this;
 	}
 
 	function getDescription() {
-		return description;
+		return xmlParse(config).project.description.xmlText;
 	}
 
 	function loadDescription() {
 		http url="#getURL('description')#";
 		setDescription(cfhttp.fileContent);
+		return this;
 	}
 
 	function saveDescription(description = getDescription()) {
@@ -245,10 +285,6 @@ component {
 
 		return cfhttp.status_code EQ "200";
 
-	}
-
-	function parseResult(result) {
-		return isXML(result) ? xmlParse(result) : (isJSON(result) ? deserializeJSON(result) : "");
 	}
 
 }
