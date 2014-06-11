@@ -13,7 +13,8 @@ Notes
 Todo
 ----
 
-- Change getStringParameterNode() to use better XML manipulation. The current nested loops approach is damn ugly!
+- Look at adding complex parameters to the list of those we can edit
+- Full update of choice parameter choices
 
 Usage
 -----
