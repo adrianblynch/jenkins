@@ -84,11 +84,6 @@ component {
 		return config;
 	}
 
-	// function loadConfig() {
-	// 	http url="#getURL('config.xml')#";
-	// 	setConfig(cfhttp.fileContent);
-	// }
-
 	function saveConfig() {
 
 		http url="#getURL('config.xml')#" method="post" {
@@ -269,12 +264,6 @@ component {
 
 	function getDescription() {
 		return xmlParse(config).project.description.xmlText;
-	}
-
-	function loadDescription() {
-		http url="#getURL('description')#";
-		setDescription(cfhttp.fileContent);
-		return this;
 	}
 
 	function saveDescription(description = getDescription()) {
