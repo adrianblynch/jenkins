@@ -14,7 +14,7 @@ Todo
 ----
 
 - Look at adding complex parameters to the list of those we can edit
-- Full update of choice parameter choices
+- Full update of choice parameters
 - Add project?
 
 Basic usage
@@ -27,7 +27,7 @@ Basic usage
 	);
 
 	// Build a project
-	jenkins.setProject("NAME_OF_JOB_YOU_WISH_TO_PALY_WITH");
+	jenkins.setProject("NAME_OF_JOB_YOU_WISH_TO_PLAY_WITH");
 	jenkins.build();
 
 See index.cfm for more complex examples.
